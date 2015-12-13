@@ -1,0 +1,17 @@
+Source: progfetch
+Section: utils
+Priority: optional
+Maintainer: Paul Seelig <wmlive@rumbero.org>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: http://wmlive.rumbero.org
+
+Package: progfetch
+Architecture: all
+Depends: ${misc:Depends}, wget, links, gxmessage
+Description: Utilities to download, install, or upgrade third party programs
+ Certain third party applications are updated at a much higher rate than the
+ average Linux distribution can provide. The applications covered here are the
+ upstream versions of Firefox, Palemoon, Thunderbird, and Telegram Desktop.
+ The included scripts manage installation and upgrade of these programs in the
+ systems private /opt directory.

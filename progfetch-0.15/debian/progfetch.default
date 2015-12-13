@@ -1,0 +1,11 @@
+### environment variables for progfetch related scripts
+
+# programs to install
+#INSTALLPROGS="firefox thunderbird telegram"
+INSTALLPROGS="palemoon FossaMail telegram"
+
+# definition of additional langpacks to install
+#EXTRALANGS="de en-US fr es-ES it"
+
+# to keep former releases as backup version, switch this to "yes":
+KEEPOLDRELEASE="no"
