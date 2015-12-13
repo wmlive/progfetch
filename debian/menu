@@ -1,0 +1,5 @@
+?package(progfetch):needs="x11" \
+  section="Applications/Administration" sort="ZZ"\
+  title="Third Party Software" \
+  icon="HandReach.xpm" \
+  command="/usr/bin/wmlive-progfetch"
