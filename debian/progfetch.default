@@ -1,8 +1,8 @@
 ### environment variables for progfetch related scripts
 
 # programs to install
-#INSTALLPROGS="firefox thunderbird telegram"
-INSTALLPROGS="palemoon FossaMail telegram"
+#INSTALLPROGS="firefox FossaMail telegram"
+INSTALLPROGS="palemoon thunderbird telegram"
 
 # definition of additional langpacks to install
 #EXTRALANGS="de en-US fr es-ES it"

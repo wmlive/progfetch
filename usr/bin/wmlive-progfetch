@@ -39,8 +39,12 @@ EOF
 
     if [ "$EXITSTATUS" = "2" ]
     then
-        /usr/bin/wmlive-tbrdfetch && \
-        exec "${0}"
+        if [ "$(/usr/bin/id -u)" != "1000" ]
+        then
+            notauthorized; exec "${0}"
+        else
+            roxterm --title=tbrdfetch --separate --disable-sm --name=progfetch -e sudo /usr/sbin/tbrdfetch
+        fi && exec "${0}"
     elif [ "$EXITSTATUS" = "3" ]
     then
         /usr/bin/wmlive-ffoxfetch && \

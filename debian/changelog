@@ -1,3 +1,10 @@
+progfetch (0.16) unstable; urgency=low
+
+  * Removed wmlive-tbrdfetch script and default again to Thunderbird as
+    standard mail program instead of FossaMail.
+
+ -- Paul Seelig <wmlive@rumbero.org>  Mon, 21 Dec 2015 23:28:58 +0100
+
 progfetch (0.15) unstable; urgency=low
 
   * Removed symbolic links pointing from /usr/bin/* to /opt/*/* as this will be
