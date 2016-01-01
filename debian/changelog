@@ -1,3 +1,23 @@
+progfetch (0.19) unstable; urgency=low
+
+  * usr/sbin/tlgrmfetch: make sure a symlink exists in path pointing to
+    the Telegram binary.
+
+ -- Paul Seelig <wmlive@rumbero.org>  Fri, 01 Jan 2016 03:38:56 +0100
+
+progfetch (0.18) unstable; urgency=low
+
+  * Corrected syntax error for ${LANGPACKURIS} in usr/sbin/pmoonfetch
+    inhibiting langpack information retrieval.
+
+ -- Paul Seelig <wmlive@rumbero.org>  Thu, 31 Dec 2015 05:34:11 +0100
+
+progfetch (0.17) unstable; urgency=low
+
+  * Corrected package name entry in debian/menu file.
+
+ -- Paul Seelig <wmlive@rumbero.org>  Tue, 29 Dec 2015 03:06:15 +0100
+
 progfetch (0.16) unstable; urgency=low
 
   * Removed wmlive-tbrdfetch script and default again to Thunderbird as

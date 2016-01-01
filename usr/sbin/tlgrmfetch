@@ -187,7 +187,9 @@ then
   echo Latest Telegram "${PROGVERSION}" has been installed.
 else
   echo Latest Telegram "${PROGVERSION}" is already installed.
-fi  
+fi
+# make sure a symlink in path points to the Telegram binary
+[ -L /usr/bin/telegram ] || ln -s /opt/Telegram/Telegram /usr/bin/telegram
 }
 
 prog_fetch ()

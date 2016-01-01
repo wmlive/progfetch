@@ -149,7 +149,7 @@ then
 
    LANGPACKURIS="http://www.palemoon.org/langpacks.shtml http://www.palemoon.org/langpacks-inactive.shtml"
    PROGLINGUAS="${LANGPACKDIR}/langpacklist"
-   wget -O - "${LANGPACKURIS}" 2>/dev/null | grep "relmirror.palemoon.org/langpacks" | cut -d\" -f2 | cut -d/ -f1-6 > "${PROGLINGUAS}"
+   wget -O - ${LANGPACKURIS} 2>/dev/null | grep "relmirror.palemoon.org/langpacks" | cut -d\" -f2 | cut -d/ -f1-6 > "${PROGLINGUAS}"
 
    LANGMIRROR="$(grep "relmirror.palemoon.org/langpacks" "${PROGLINGUAS}" | cut -d\" -f2 | cut -d/ -f1-5 | head -n 1)"
    LANGPACKS="${LANGPACKDIR}"/${LANGVERSION}
