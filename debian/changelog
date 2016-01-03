@@ -1,3 +1,11 @@
+progfetch (0.20) unstable; urgency=low
+
+  * Added usr/bin/proglocale script allowing to automatically copy the langpack
+    matching the current LANG environment variable into the user profile. This
+    should be executed via $HOME/.xprofile during user login.
+
+ -- Paul Seelig <wmlive@rumbero.org>  Sun, 03 Jan 2016 02:22:28 +0100
+
 progfetch (0.19) unstable; urgency=low
 
   * usr/sbin/tlgrmfetch: make sure a symlink exists in path pointing to
