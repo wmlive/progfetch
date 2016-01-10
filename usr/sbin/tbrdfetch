@@ -35,7 +35,7 @@ echo "linux-x86_64"
 echo ""
 }
 
-if [ "$i{1}" = "help" ]
+if [ "${1}" = "help" ]
 then
    ${1}
    exit 0
@@ -101,16 +101,23 @@ SYSLOCALE="$(echo "${SYSENVLANG}" | cut -d_ -f1) $(echo "${SYSENVLANG}" | tr _ -
 
 PROGWORKDIR=/opt
 
+if [ "$(uname -m)" = "x86_64" ]
+then
+    CPUTYPE="x86_64"
+else
+    CPUTYPE="i686"
+fi
+
 case "$1" in
-linux-i686)
-    PROGARCH=linux-i686
-    ;;
-linux-x86_64)
-    PROGARCH=linux-x86_64
-    ;;
-*)
-    PROGARCH="linux-$(uname -m)"
-    ;;
+    linux-i686)
+        PROGARCH=linux-i686
+        ;;
+    linux-x86_64)
+        PROGARCH=linux-x86_64
+        ;;
+    *)
+        PROGARCH=linux-${CPUTYPE}
+        ;;
 esac
 
 PROGAPPINI="${PROGWORKDIR}"/"${PROGVARIANT}"/application.ini
@@ -248,6 +255,7 @@ if [ "${STILLINCOMPLETE}" != "yes" ]
 then
     cd "${PROGWORKDIR}" && \
     [ -d "${PROGVARIANT}"_old ] && rm -rf "${PROGVARIANT}"_old
+
     if [ "$KEEPOLDRELEASE" = "yes" ] && [ -d "${PROGVARIANT}" ]
     then
        echo Replacing "${PROGWORKDIR}"/"${PROGVARIANT}" with new version
@@ -255,9 +263,10 @@ then
     else
        rm -rf "${PROGVARIANT}"
     fi
+
     if [ -s "${PROGTARGETDIR}"/"${LATESTPROG}" ]
     then
-	tar xjf "${PROGTARGETDIR}"/"${LATESTPROG}"
+        tar xjf "${PROGTARGETDIR}"/"${LATESTPROG}"
     fi
 else
     echo No valid install files found
@@ -268,38 +277,38 @@ prog_fetch ()
 {
 if [ -d "${PROGTARGETDIR}" ]
 then
-    if [ "${PROGARCH}" = "linux-$(uname -m)" ]
+    if [ "${PROGARCH}" = "linux-${CPUTYPE}" ]
     then
-	cd "${PROGTARGETDIR}" && \
-	version_check
-	if [ "${LATESTVER}" != "${CURRENTVER}" ]
-	then
-	    echo "Latest release version is ${LATESTVER}"
-	    if [ -s "${LATESTPROG}" ]
-	    then
-		check_integrity
-	    else
-		echo Downloading "${PROGLANG}" "${PROGVARIANT}" update "${LATESTVER}"
-		cd "${PROGTARGETDIR}" && \
-		${WGETCMD} "${PROGDOWNLOAD}"
-	    fi
-	    replace_install
-	fi
-    elif [ "${PROGARCH}" != "linux-$(uname -m)" ]
+        cd "${PROGTARGETDIR}" && \
+        version_check
+        if [ "${LATESTVER}" != "${CURRENTVER}" ]
+        then
+            echo "Latest release version is ${LATESTVER}"
+            if [ -s "${LATESTPROG}" ]
+            then
+            check_integrity
+            else
+            echo Downloading "${PROGLANG}" "${PROGVARIANT}" update "${LATESTVER}"
+            cd "${PROGTARGETDIR}" && \
+            ${WGETCMD} "${PROGDOWNLOAD}"
+            fi
+            replace_install
+        fi
+    elif [ "${PROGARCH}" != "linux-${CPUTYPE}" ]
     then
-	cd "${PROGTARGETDIR}" && \
-	if [ "${LATESTVER}" != "" ] && [ "${PROGARCH}" != "" ]
-	then
-	   echo "Latest release version is ${LATESTVER}"
-	   if [ -s "${LATESTPROG}" ]
-	     then
-		check_integrity
-	     else
-		echo Downloading "${PROGARCH}" "${PROGVARIANT}" version "${LATESTVER}"
-		${WGETCMD} "${PROGDOWNLOAD}"
-		check_integrity
-	   fi
-	fi
+        cd "${PROGTARGETDIR}" && \
+        if [ "${LATESTVER}" != "" ] && [ "${PROGARCH}" != "" ]
+        then
+            echo "Latest release version is ${LATESTVER}"
+            if [ -s "${LATESTPROG}" ]
+            then
+                check_integrity
+            else
+                echo Downloading "${PROGARCH}" "${PROGVARIANT}" version "${LATESTVER}"
+                ${WGETCMD} "${PROGDOWNLOAD}"
+                check_integrity
+            fi
+        fi
     fi
 fi
 }

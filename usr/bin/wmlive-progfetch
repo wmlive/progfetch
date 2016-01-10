@@ -27,6 +27,19 @@ ${GXMSG} -buttons "" -title "Sorry, only root can do this" -file - << EOFSORRY
 EOFSORRY
 }
 
+cpufeature ()
+{
+${GXMSG} -buttons "" -title "Processor does not support SSE2" -file - << EOFSSE2
+
+    This program requires a CPU featuring the SSE2 instruction set, but
+    which, unfortunately, is not supported by this system's processor.
+EOFSSE2
+}
+
+# check CPU for SSE2 instruction set:
+CPUFEATURE="$(grep -m 1 ^flags /proc/cpuinfo | grep -ci sse2)" 
+
+
 if [ "$DISPLAY" != "" ]
 then
     $GXMSG -buttons "Firefox:3,Palemoon:5,Telegram:4,Thunderbird:2,FossaMail:6" -title "Get Third Party Programs" -file - << EOF
@@ -54,6 +67,9 @@ EOF
         if [ "$(/usr/bin/id -u)" != "1000" ]
         then
             notauthorized; exec "${0}"
+        elif [ "${CPUFEATURE}" != "1" ]
+        then
+            cpufeature; exec "${0}"
         else
             roxterm --title=tlgrmfetch --separate --disable-sm --name=progfetch -e sudo /usr/sbin/tlgrmfetch
         fi && exec "${0}"
@@ -62,6 +78,9 @@ EOF
         if [ "$(/usr/bin/id -u)" != "1000" ]
         then
             notauthorized; exec "${0}"
+        elif [ "${CPUFEATURE}" != "1" ]
+        then
+            cpufeature; exec "${0}"
         else
             roxterm --title=pmoonfetch --separate --disable-sm --name=progfetch -e sudo /usr/sbin/pmoonfetch
         fi && exec "${0}"
@@ -70,6 +89,9 @@ EOF
         if [ "$(/usr/bin/id -u)" != "1000" ]
         then
             notauthorized; exec "${0}"
+        elif [ "${CPUFEATURE}" != "1" ]
+        then
+            cpufeature; exec "${0}"
         else
             roxterm --title=fsmlfetch --separate --disable-sm --name=progfetch -e sudo /usr/sbin/fsmlfetch
         fi && exec "${0}"

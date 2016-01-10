@@ -1,3 +1,36 @@
+progfetch (0.25) unstable; urgency=low
+
+  * usr/bin/wmlive-ffoxfetch: Also added the very same check for SSE2 as
+    described in the former revision.
+
+ -- Paul Seelig <wmlive@rumbero.org>  Sun, 10 Jan 2016 06:57:07 +0100
+
+progfetch (0.24) unstable; urgency=low
+
+  * usr/bin/wmlive-progfetch: Added check to verify if CPU supports SSE2 and
+    quit with the display of a warning for palemoon, telegram, and fossamail.
+
+ -- Paul Seelig <wmlive@rumbero.org>  Sun, 10 Jan 2016 06:39:31 +0100
+
+progfetch (0.23) unstable; urgency=low
+
+  * Corrected wrongly constructed case statement.
+
+ -- Paul Seelig <wmlive@rumbero.org>  Sat, 09 Jan 2016 06:14:51 +0100
+
+progfetch (0.22) unstable; urgency=low
+
+  * Introduce and use CPUTYPE variable as CPU architecture definition.
+
+ -- Paul Seelig <wmlive@rumbero.org>  Sat, 09 Jan 2016 05:55:59 +0100
+
+progfetch (0.21) unstable; urgency=low
+
+  * usr/sbin/tbrdfetch: Corrected help argument which was slightly broken due
+    to a silly typo. Likewise for the usr/sbin/ffoxfetch script.
+
+ -- Paul Seelig <wmlive@rumbero.org>  Fri, 08 Jan 2016 21:53:25 +0100
+
 progfetch (0.20) unstable; urgency=low
 
   * Added usr/bin/proglocale script allowing to automatically copy the langpack

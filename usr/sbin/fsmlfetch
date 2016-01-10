@@ -75,16 +75,23 @@ fi
 
 PROGVARIANT=FossaMail
 
+if [ "$(uname -m)" = "x86_64" ]
+then
+    CPUTYPE="x86_64"
+else
+    CPUTYPE="i686"
+fi
+
 case "$1" in
-linux-i686)
-    PROGARCH=linux-i686
-    ;;
-linux-x86_64)
-    PROGARCH=linux-x86_64
-    ;;
-*)
-    PROGARCH="linux-$(uname -m)"
-    ;;
+    linux-i686)
+        PROGARCH=linux-i686
+        ;;
+    linux-x86_64)
+        PROGARCH=linux-x86_64
+        ;;
+    *)
+        PROGARCH=linux-${CPUTYPE}
+        ;;
 esac
 
 PROGMIRROR="http://www.fosshub.com/FossaMail.html"
@@ -281,7 +288,7 @@ fetchprog ()
 {
 if [ -d "${PROGTARGETDIR}" ] && [ "${DISPLAY}" != "" ] 
 then
-    if [ "${PROGARCH}" = "linux-$(uname -m)" ]
+    if [ "${PROGARCH}" = "linux-${CPUTYPE}" ]
     then
         cd "${PROGTARGETDIR}" && \
         version_check
@@ -299,7 +306,7 @@ then
             fi
             replace_install 
         fi
-    elif [ "${PROGARCH}" != "linux-$(uname -m)" ]
+    elif [ "${PROGARCH}" != "linux-${CPUTYPE}" ]
     then
         cd "${PROGTARGETDIR}" && \
         if [ "${LATESTVER}" != "" ] && [ "${PROGARCH}" != "" ]
