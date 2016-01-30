@@ -170,7 +170,7 @@ then
    PROGLINGUAS="${LANGPACKDIR}/langpacklist"
    LANGPACKS="${LANGPACKDIR}"/"${LATESTVER}"
    LANGMIRROR="${PROGMIRROR}"/"${LATESTVER}"/"${PROGARCH}"/xpi
-   wget -q -O - "${LANGMIRROR}"/ 2>/dev/null | grep href= | cut -d\" -f2 | grep \\.xpi$ | cut -d/ -f8 > "${PROGLINGUAS}"
+   wget -q -O - "${LANGMIRROR}"/ 2>/dev/null | grep -o 'href="/pub/[^"]*' | grep \\.xpi$ | cut -d/ -f8 > "${PROGLINGUAS}"
 elif [ "${LATESTVER}" = "" ] && [ "${CURRENTVER}" != "" ]
 then
    version_check
@@ -426,7 +426,7 @@ fi
 
 # keep terminal window open to make command output visible:
 
-if [ "${DISPLAY}" != "" ] && [ "$(ps -ef | grep "[t]erm --title=$(basename "${0}")")" != "0" ]
+if [ "${DISPLAY}" != "" ] && [ "$(ps -ef | grep -c "[t]erm --title=$(basename "${0}")")" != "0" ]
 then
     sleep 5
 fi

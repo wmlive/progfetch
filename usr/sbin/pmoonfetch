@@ -156,7 +156,7 @@ then
 
    LANGPACKURIS="http://www.palemoon.org/langpacks.shtml http://www.palemoon.org/langpacks-inactive.shtml"
    PROGLINGUAS="${LANGPACKDIR}/langpacklist"
-   wget -O - ${LANGPACKURIS} 2>/dev/null | grep "relmirror.palemoon.org/langpacks" | cut -d\" -f2 | cut -d/ -f1-6 > "${PROGLINGUAS}"
+   wget -O - ${LANGPACKURIS} 2>/dev/null | grep "relmirror.palemoon.org/langpacks" | grep -o 'http://[^"]*' > "${PROGLINGUAS}"
 
    LANGMIRROR="$(grep "relmirror.palemoon.org/langpacks" "${PROGLINGUAS}" | cut -d\" -f2 | cut -d/ -f1-5 | head -n 1)"
    LANGPACKS="${LANGPACKDIR}"/${LANGVERSION}
@@ -400,7 +400,7 @@ fi
 
 # keep terminal window open to make command output visible:
 
-if [ "${DISPLAY}" != "" ] && [ "$(ps -ef | grep "[t]erm --title=$(basename "${0}")")" != "0" ]
+if [ "${DISPLAY}" != "" ] && [ "$(ps -ef | grep -c "[t]erm --title=$(basename "${0}")")" != "0" ]
 then
     sleep 5
 fi

@@ -59,13 +59,6 @@ EOFSORRY
     fi
 fi
 
-if [ ! -x /usr/bin/midori ]
-then
-  echo This script requires /usr/bin/midori to be installed.
-  echo Install it first with \'apt-get -u -m install midori\'.
-  exit 0
-fi
-
 PROGENVDEFAULTS=/etc/default/progfetch
 
 if [ -s "${PROGENVDEFAULTS}" ]
@@ -138,9 +131,7 @@ then
 
    PROGTARGETDIR=${PROGWORKDIR}/${PROGARCH}/${PROGVARIANT}
 
-   MIDORICMD="/usr/bin/midori --class=progfetch --private --execute=Panel --execute=SaveAs --execute=download-folder=${PROGTARGETDIR}"
    WGETCMD="wget -c --progress=dot"
-   PROGDOWNLOAD="${PROGMIRROR}/${LATESTPROG}"
 
    if [ ! -d "${PROGTARGETDIR}" ]
    then
@@ -158,7 +149,7 @@ then
 
    LANGMIRROR="ftp://fmlocales:get@ftp.palemoon.org/${LANGVERSION}"
    PROGLINGUAS="${LANGPACKDIR}/langpacklist"
-   wget -O - "${LANGMIRROR}/" 2>/dev/null | grep "fmlocales:get@ftp.palemoon.org" | cut -d\> -f2 | cut -d\< -f1 > "${PROGLINGUAS}"
+   wget -O - "${LANGMIRROR}/" 2>/dev/null | grep "fmlocales:get@ftp.palemoon.org" | grep -o 'ftp://[^"]*' > "${PROGLINGUAS}"
 
    LANGPACKS="${LANGPACKDIR}"/${LANGVERSION}
 elif [ "${LATESTVER}" = "" ] && [ "${CURRENTVER}" != "" ]
@@ -186,12 +177,24 @@ then
     cd "${PROGTARGETDIR}" && \
     if [ "$(find . -name "${PROGVARIANT}*.tar.bz2" 2>/dev/null | wc -w)" -gt "1" ]
         then
-        echo Clean up from obsolete download archives:
+        echo Removing obsolete download archives:
         for BZPROGTAR in $(find . -name "${PROGVARIANT}*.tar.bz2" | awk -F / '{print $2}')
         do
             if [ "${BZPROGTAR}" != "${LATESTPROG}" ]
             then
                rm -vf "$(basename "${BZPROGTAR}" .bz2)".*
+            fi
+        done
+        echo ""
+    fi
+    if [ "$(find . -name "lightning*.xpi" 2>/dev/null | wc -w)" -gt "1" ]
+        then
+        echo Removing obsolete downloaded addons:
+        for LIGHTNINGXPI in $(find . -name "lightning*.xpi" | awk -F / '{print $2}')
+        do
+            if [ "${LIGHTNINGXPI}" != "${LIGHTNING}" ]
+            then
+               rm -vf "$(basename ${LIGHTNINGXPI} .xpi)".*
             fi
         done
         echo ""
@@ -219,25 +222,37 @@ fi
 
 check_integrity ()
 {
-echo Verifying download "${LATESTPROG}" integrity...
+echo Verifying download integrity...
 cd "${PROGTARGETDIR}" && \
 BZINTEGRITY="$(tar tjf "${LATESTPROG}" > /dev/null 2>&1; echo $?)"
-if [ "${BZINTEGRITY}" != "0" ] && [ "${NONETWORK}" = "" ] && [ "${DISPLAY}" != "" ] 
+if [ "${BZINTEGRITY}" != "0" ] && [ "${NONETWORK}" = "" ]
 then
-    echo Retrying incomplete ${PROGVARIANT} download...
+    echo Retrying incomplete download...
     echo ""
     cd "${PROGTARGETDIR}" && \
-    ${MIDORICMD} "${PROGDOWNLOAD}" 2>/dev/null
-elif [ "${DISPLAY}" = "" ]
-then
-    echo Cannot download ${PROGVARIANT} due to missing display.
+    ${WGETCMD} "${PROGDOWNLOAD}"
 elif [ "${NONETWORK}" != "" ]
 then
     echo Download is still incomplete
     echo Network unreachable, cannot continue
     STILLINCOMPLETE=yes
 else
-    echo "Download of ${PROGARCH} version complete."
+    echo "Download of "${LATESTPROG}" complete."
+fi
+XPINTEGRITY="$(unzip -l ${LIGHTNING} > /dev/null 2>&1; echo $?)"
+if [ "${XPINTEGRITY}" != "0" ] && [ "${NONETWORK}" = "" ]
+then
+    echo Retrying incomplete download...
+    echo ""
+    cd "${PROGTARGETDIR}" && \
+    getlightning
+elif [ "${NONETWORK}" != "" ]
+then
+    echo Download is still incomplete
+    echo Network unreachable, cannot continue
+    STILLINCOMPLETE=yes
+else
+    echo "Download of ${LIGHTNING} complete."
 fi
 }
 
@@ -248,20 +263,28 @@ if [ "${STILLINCOMPLETE}" != "yes" ]
 then
     cd "${PROGWORKDIR}" && \
     [ -d "${PROGVARIANT}"_old ] && rm -rf "${PROGVARIANT}"_old
+
     if [ "$KEEPOLDRELEASE" = "yes" ] && [ -d "${PROGVARIANT}" ]
     then
-        echo Replacing ${PROGWORKDIR}/${PROGVARIANT} with new version
-        mv "${PROGVARIANT}" "${PROGVARIANT}"_old
+       echo Replacing ${PROGWORKDIR}/${PROGVARIANT} with new version
+       mv "${PROGVARIANT}" "${PROGVARIANT}"_old
     else
        rm -rf "${PROGVARIANT}"
     fi
-        if [ -s "${PROGTARGETDIR}/${LATESTPROG}" ]
+
+    if [ -s "${PROGTARGETDIR}/${LATESTPROG}" ]
     then
-        tar xjf "${PROGTARGETDIR}/${LATESTPROG}"
+       tar xjf "${PROGTARGETDIR}/${LATESTPROG}"
     fi
-    XPITARGETDIR=$(unzip -c "${PROGTARGETDIR}/${LIGHTNING}" | grep ^ID=\{ | awk -F= '{print $2}')
-    [ -d "${XPITARGETDIR}" ] && rm -rf "${XPITARGETDIR}"
-    unzip -d "${EXTENSIONDIR}/${XPITARGETDIR}" "${PROGTARGETDIR}/${LIGHTNING}"
+
+    if [ -s "${PROGTARGETDIR}/${LIGHTNING}" ]
+    then
+       XPITARGETDIR=$(unzip -c "${PROGTARGETDIR}/${LIGHTNING}" | grep ^ID=\{ | awk -F= '{print $2}')
+       [ -d "${XPITARGETDIR}" ] && rm -rf "${XPITARGETDIR}"
+       unzip -d "${EXTENSIONDIR}/${XPITARGETDIR}" "${PROGTARGETDIR}/${LIGHTNING}"
+    else
+       echo No "${LIGHTNING}" found, try again.
+    fi
 else
     echo No valid install files found
 fi
@@ -269,62 +292,48 @@ fi
 
 getlightning ()
 {
-    LIGHTDOWNLOAD="${PROGMIRROR}/${LIGHTNING}.gz"
-    if [ ! -s "${LIGHTNING}" ] && [ ! -s "${LIGHTNING}.gz" ] && [ "${DISPLAY}" != "" ] 
+    LIGHTDOWNLOAD="$(wget -O - ${PROGMIRROR}/${LIGHTNING}.gz 2>/dev/null | grep -o 'https://download.fosshub.com/Protected/expiretime=[^"]*')"
+    if [ "${NONETWORK}" != "" ]
     then
-        ${MIDORICMD} "${LIGHTDOWNLOAD}" 2>/dev/null
+        echo Cannot download lightning addon, network is unavailable
+    elif [ ! -s "${LIGHTNING}" ] && [ ! -s "${LIGHTNING}.gz" ]
+    then
+        ${WGETCMD} "${LIGHTDOWNLOAD}"
         [ "$(file "${LIGHTNING}.gz" | awk -F : '{print $2}' | cut -d, -f1)" != " HTML document" ] && \
-            gunzip -c "${LIGHTNING}.gz" > "${LIGHTNING}"
-    elif [ "${DISPLAY}" = "" ]
+            gunzip -c "${LIGHTNING}.gz" > "${LIGHTNING}" && rm -f "${LIGHTNING}.gz"
+    elif [ ! -s "${LIGHTNING}" ] && [ -s "${LIGHTNING}.gz" ]
     then
-        echo Cannot download lightning addon due to missing display.
-    else
-        rm -f "${LIGHTNING}.gz"
-        echo Download failed, please try again later
+        [ "$(file "${LIGHTNING}.gz" | awk -F : '{print $2}' | cut -d, -f1)" != " HTML document" ] && \
+            gunzip -c "${LIGHTNING}.gz" > "${LIGHTNING}" && rm -f "${LIGHTNING}.gz"
     fi
 }
 
 fetchprog ()
 {
-if [ -d "${PROGTARGETDIR}" ] && [ "${DISPLAY}" != "" ] 
+PROGDOWNLOAD="$(wget -O - ${PROGMIRROR}/${LATESTPROG} 2>/dev/null | grep -o 'https://download.fosshub.com/Protected/expiretime=[^"]*')"
+if [ -d "${PROGTARGETDIR}" ] 
 then
     if [ "${PROGARCH}" = "linux-${CPUTYPE}" ]
     then
-        cd "${PROGTARGETDIR}" && \
-        version_check
-        if [ "${LATESTVER}" != "${CURRENTVER}" ]
-        then
-            echo "Latest release version is ${LATESTVER}"
-            if [ -s "${LATESTPROG}" ]
-            then
-                check_integrity
-            else
-                echo "Downloading ${PROGLANG} ${PROGVARIANT} update ${LATESTVER}"
-                cd "${PROGTARGETDIR}" && \
-                ${MIDORICMD} "${PROGDOWNLOAD}" 2>/dev/null
-                check_integrity
-            fi
-            replace_install 
-        fi
+       cd "${PROGTARGETDIR}" && \
+       version_check
+       if [ "${LATESTVER}" != "${CURRENTVER}" ]
+       then
+           echo "Latest release version is ${LATESTVER}"
+           echo "Downloading ${PROGLANG} ${PROGVARIANT} update ${LATESTVER}"
+           cd "${PROGTARGETDIR}" && \
+           ${WGETCMD} "${PROGDOWNLOAD}" 
+       fi
     elif [ "${PROGARCH}" != "linux-${CPUTYPE}" ]
     then
-        cd "${PROGTARGETDIR}" && \
-        if [ "${LATESTVER}" != "" ] && [ "${PROGARCH}" != "" ]
-        then
-           echo "Latest release version is ${LATESTVER}"
-           if [ -s "${LATESTPROG}" ]
-           then
-               check_integrity
-           else
-               echo "Downloading ${PROGARCH} ${PROGVARIANT} version ${LATESTVER}"
-               ${MIDORICMD} "${PROGDOWNLOAD}" 2>/dev/null
-               check_integrity
-           fi
-        fi
+       cd "${PROGTARGETDIR}" && \
+       if [ "${LATESTVER}" != "" ] && [ "${PROGARCH}" != "" ]
+       then
+          echo "Latest release version is ${LATESTVER}"
+          echo "Downloading ${PROGARCH} ${PROGVARIANT} version ${LATESTVER}"
+          ${WGETCMD} "${PROGDOWNLOAD}"
+       fi
     fi
-elif [ "${DISPLAY}" = "" ]
-then
-    echo Cannot download ${PROGVARIANT} due to missing display.
 fi
 }
 
@@ -382,26 +391,34 @@ fi
 
 syslocale ()
 {
-if [ -d "${PROGTARGETDIR}" ] && [ ! -d "${LANGPACKS}" ]
+if [ -d "${PROGTARGETDIR}" ]
 then
-  mkdir -p "${LANGPACKS}"
-elif [ "${LANGPACKS}" != "" ] && [ -d "${LANGPACKS}" ]
-then
-    cd "${LANGPACKS}" && \
-    for XPI in ${SYSLOCALE}
-    do
-        XPIFILE=langpack-"${XPI}@${PROGVARIANT}".org.xpi
-	if [ "${XPIFILE}" != "" ] && [ -s "${PROGLINGUAS}" ] && [ "$(grep -c "${XPI}".xpi$ "${PROGLINGUAS}")" != "0" ]
-	then
-	    [ ! -s "${XPIFILE}" ] && ${WGETCMD} "${LANGMIRROR}/${XPI}".xpi -O "${XPIFILE}"
-	fi
-	[ "${XPIFILE}" != "" ] && [ -s "${XPIFILE}" ] && TARGETXPI=$(unzip -c "${XPIFILE}" | grep em:id= | awk -F\" '{print $2}').xpi
-	if [ "${TARGETXPI}" != "" ] && [ "${EXTENSIONDIR}" != "" ] && [ ! -s "${EXTENSIONDIR}/${TARGETXPI}" ]
-	then
-	    echo Installing extension "${TARGETXPI}" 
-	    cp -v "${XPIFILE}" "${EXTENSIONDIR}/${TARGETXPI}"
-	fi
-    done
+    if [ ! -d "${LANGPACKS}" ]
+    then
+        mkdir -p "${LANGPACKS}"
+    fi
+
+    if [ "${LANGPACKS}" != "" ] && [ -d "${LANGPACKS}" ]
+    then
+        cd "${LANGPACKS}" && \
+        for XPI in ${SYSLOCALE}
+        do
+            XPIFILE=langpack-"${XPI}@${PROGVARIANT}".org.xpi
+
+            if [ "${XPIFILE}" != "" ] && [ -s "${PROGLINGUAS}" ] && [ "$(grep -c "${XPI}".xpi$ "${PROGLINGUAS}")" != "0" ]
+            then
+                [ ! -s "${XPIFILE}" ] && ${WGETCMD} "${LANGMIRROR}/${XPI}".xpi -O "${XPIFILE}"
+            fi
+
+            [ "${XPIFILE}" != "" ] && [ -s "${XPIFILE}" ] && TARGETXPI=$(unzip -c "${XPIFILE}" | grep em:id= | awk -F\" '{print $2}').xpi
+
+            if [ "${TARGETXPI}" != "" ] && [ "${EXTENSIONDIR}" != "" ] && [ ! -s "${EXTENSIONDIR}/${TARGETXPI}" ]
+            then
+                echo Installing extension "${TARGETXPI}" 
+                cp -v "${XPIFILE}" "${EXTENSIONDIR}/${TARGETXPI}"
+            fi
+        done
+    fi
 fi
 }
 
@@ -416,6 +433,7 @@ elif [ "${NONETWORK}" = "" ] && [ "${1}" = "${PROGARCH}" ]
 then
    fetchprog
    getlightning
+   replace_install 
    cleanup
 elif [ "${NONETWORK}" = "" ] && [ "${1}" != "${PROGARCH}" ]
 then
@@ -429,7 +447,7 @@ fi
 
 # keep terminal window open to make command output visible:
 
-if [ "${DISPLAY}" != "" ] && [ "$(ps -ef | grep "[t]erm --title=$(basename "${0}")")" != "0" ]
+if [ "${DISPLAY}" != "" ]
 then
-    sleep 5
+    [ "$(ps -ef | grep -c "[t]erm --title=$(basename "${0}")")" != "0" ] && sleep 5
 fi

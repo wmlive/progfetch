@@ -8,7 +8,7 @@ Homepage: http://wmlive.rumbero.org
 
 Package: progfetch
 Architecture: all
-Depends: ${misc:Depends}, wget, links, gxmessage
+Depends: ${misc:Depends}, wget, gxmessage
 Description: Utilities to download, install, or upgrade third party programs
  Certain third party applications are updated at a much higher rate than the
  average Linux distribution can provide. The applications covered here are the

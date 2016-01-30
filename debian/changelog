@@ -1,3 +1,23 @@
+progfetch (0.26) unstable; urgency=low
+
+  * usr/sbin/fsmlfetch: Added procedure to first determine protected download
+    URL and use this one for the actual download. This way we can get rid of
+    midori and use wget for retrieval.
+
+  * usr/sbin/pmoonfetch: Enhance langpack download routine.
+
+  * usr/sbin/[ffox|tbrd]fetch: Enhance langpack download routine.
+
+  * usr/sbin/tlgrmfetch: Modified version check routine and adapted it for
+    wget instead of links. This finally removes the dependency on links.
+
+  * Correct erroneous grep command at the end of each fetch script which
+    prevented tehm from a timely exit.
+
+  * debian/control: Removed obsolete dependency on links package.
+
+ -- Paul Seelig <wmlive@rumbero.org>  Sat, 30 Jan 2016 23:26:06 +0100
+
 progfetch (0.25) unstable; urgency=low
 
   * usr/bin/wmlive-ffoxfetch: Also added the very same check for SSE2 as
