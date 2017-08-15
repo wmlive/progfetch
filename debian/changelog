@@ -1,3 +1,23 @@
+progfetch (0.26.3) jessie; urgency=low
+
+  * usr/sbin/tlgrmfetch: Corrected regular expression
+
+ -- Paul Seelig <wmlive@rumbero.org>  Fri, 04 Aug 2017 00:09:19 +0200
+
+progfetch (0.26.2) jessie; urgency=low
+
+  * Actually include the modified scripts mentioned in last entry...
+
+ -- Paul Seelig <wmlive@rumbero.org>  Fri, 04 Aug 2017 00:04:26 +0200
+
+progfetch (0.26.1) jessie; urgency=low
+
+  * usr/sbin/pmoonfetch: Updated langpack location URL's.
+
+  * usr/sbin/tlgrmfetch: Corrected URL with changelog location.
+
+ -- Paul Seelig <wmlive@rumbero.org>  Thu, 03 Aug 2017 23:48:50 +0200
+
 progfetch (0.26) unstable; urgency=low
 
   * usr/sbin/fsmlfetch: Added procedure to first determine protected download
