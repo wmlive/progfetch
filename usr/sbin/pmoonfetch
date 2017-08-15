@@ -76,7 +76,8 @@ fi
 PROGVARIANT=palemoon
 
 LATESTVER="$(wget -O - http://linux.palemoon.org/installer/latest.php 2>/dev/null | awk '{print $1}')"
-PROGMIRROR="http://linux.palemoon.org/files/${LATESTVER}"
+#PROGMIRROR="http://linux.palemoon.org/files/${LATESTVER}"
+PROGMIRROR="http://linux.palemoon.org/datastore/release"
 
 PROGLANG=en-US
 SYSENVLANG=$(grep ^LANG= /etc/default/locale | tr -d \" | cut -d= -f2 | cut -d. -f1)
@@ -154,11 +155,11 @@ then
 
    EXTENSIONDIR="${PROGWORKDIR}/${PROGVARIANT}/browser/extensions"
 
-   LANGPACKURIS="http://www.palemoon.org/langpacks.shtml http://www.palemoon.org/langpacks-inactive.shtml"
+   LANGPACKURIS="http://addons.palemoon.org/language-packs"
    PROGLINGUAS="${LANGPACKDIR}/langpacklist"
-   wget -O - ${LANGPACKURIS} 2>/dev/null | grep "relmirror.palemoon.org/langpacks" | grep -o 'http://[^"]*' > "${PROGLINGUAS}"
+   wget -O - ${LANGPACKURIS} 2>/dev/null | grep "rm-eu.palemoon.org/langpacks" | grep -o 'http://[^"]*' > "${PROGLINGUAS}"
 
-   LANGMIRROR="$(grep "relmirror.palemoon.org/langpacks" "${PROGLINGUAS}" | cut -d\" -f2 | cut -d/ -f1-5 | head -n 1)"
+   LANGMIRROR="$(grep "rm-eu.palemoon.org/langpacks" "${PROGLINGUAS}" | cut -d\" -f2 | cut -d/ -f1-5 | head -n 1)"
    LANGPACKS="${LANGPACKDIR}"/${LANGVERSION}
 elif [ "${LATESTVER}" = "" ] && [ "${CURRENTVER}" != "" ]
 then

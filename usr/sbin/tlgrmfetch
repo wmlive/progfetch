@@ -94,7 +94,7 @@ case "$1" in
         ;;
 esac
 
-PROGVERSION=$(wget -O - https://desktop.telegram.org/#changelog 2>/dev/null | grep -i -m 1 -o 'v [0-9].[0-9].[0-9][^*] stable' | awk '{print $2}')
+PROGVERSION=$(wget -O - https://desktop.telegram.org/changelog 2>/dev/null | grep -i -m 1 -o 'v [0-9].[0-9].[0-9][^*]' | awk '{print $2}')
 
 version_check ()
 {
